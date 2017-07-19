@@ -7,12 +7,15 @@ import {
     SHOW_ALL_PAGE_SIZE as PAGINATION_SHOW_ALL, PaginationControls, IPaginationControlsProps
 } from "../paginationControls/PaginationControls";
 import {
+    ShowMoreControls
+} from "../showMoreControls/ShowMoreControls";
+import {
     ColumnVisibilityControls, IColumnVisibilityDef, IColumnVisibilityControlsProps
 } from "../columnVisibilityControls/ColumnVisibilityControls";
 import {CopyDownloadControls, ICopyDownloadControlsProps} from "../copyDownloadControls/CopyDownloadControls";
 import {serializeData} from "shared/lib/Serializer";
 import DefaultTooltip from "../DefaultTooltip";
-import {ButtonToolbar} from "react-bootstrap";
+import {ButtonToolbar, Button} from "react-bootstrap";
 import { If } from 'react-if';
 import {SortMetric} from "../../lib/ISortMetric";
 import {IMobXApplicationDataStore, SimpleMobXApplicationDataStore} from "../../lib/IMobXApplicationDataStore";
@@ -510,7 +513,9 @@ export default class LazyMobXTable<T> extends React.Component<LazyMobXTableProps
         this.getDownloadData = this.getDownloadData.bind(this);
         this.getToolbar = this.getToolbar.bind(this);
         this.getTable = this.getTable.bind(this);
+        this.getShowMore = this.getShowMore.bind(this);
         this.getPaginationControls = this.getPaginationControls.bind(this);
+        this.getShowMoreControls = this.getShowMoreControls.bind(this);
         this.filterInputReaction = reaction(
             ()=>this.store.dataStore.filterString,
             str=>{ this.filterInput && (this.filterInput.value = str); }
@@ -546,6 +551,15 @@ export default class LazyMobXTable<T> extends React.Component<LazyMobXTableProps
         }
     }
 
+    private getShowMoreControls() {
+        return (
+                <ShowMoreControls
+                    onChangeItemsPerPage={this.handlers.changeItemsPerPage}
+                    itemsPerPage={this.store.itemsPerPage}
+                />
+            );
+    }
+
     private getToolbar() {
         return (
             <ButtonToolbar style={{marginLeft:0}} className="tableMainToolbar">
@@ -576,6 +590,17 @@ export default class LazyMobXTable<T> extends React.Component<LazyMobXTableProps
         );
     }
 
+
+    private getShowMore() {
+        return (
+            <Observer>
+                    { this.getShowMoreControls }
+            </Observer>
+            //<Button bsSize="sm" block onClick={ this.onNewTodo }>Show More</Button> 
+        );
+    }
+
+
     private getTable() {
         return (
             <SimpleTable
@@ -595,6 +620,10 @@ export default class LazyMobXTable<T> extends React.Component<LazyMobXTableProps
                 <Observer>
                     {this.getTable}
                 </Observer>
+                 <Observer>
+                    {this.getShowMore}
+                </Observer>
+                
             </div>
         );
     }

@@ -8,6 +8,7 @@ import SampleManager from "../sampleManager";
 import {Mutation} from "shared/api/generated/CBioPortalAPI";
 import AlleleCountColumnFormatter from "shared/components/mutationTable/column/AlleleCountColumnFormatter";
 import AlleleFreqColumnFormatter from "./column/AlleleFreqColumnFormatter";
+import CcfColumnFormatter from "./column/CcfColumnFormatter";
 import TumorColumnFormatter from "./column/TumorColumnFormatter";
 import ProteinChangeColumnFormatter from "./column/ProteinChangeColumnFormatter";
 import {isUncalled} from "../../../shared/lib/mutationUtils";
@@ -45,6 +46,9 @@ export default class PatientViewMutationTable extends MutationTable<IPatientView
             MutationTableColumnType.VALIDATION_STATUS,
             MutationTableColumnType.CENTER,
             MutationTableColumnType.GENE,
+            MutationTableColumnType.CLONAL_STATUS,
+            MutationTableColumnType.CCF,
+            //MutationTableColumnType.CCF_CLUSTER,
             MutationTableColumnType.CHROMOSOME,
             MutationTableColumnType.PROTEIN_CHANGE,
             MutationTableColumnType.MUTATION_TYPE,
@@ -72,6 +76,13 @@ export default class PatientViewMutationTable extends MutationTable<IPatientView
             render: (d:Mutation[])=>AlleleFreqColumnFormatter.renderFunction(d, this.props.sampleManager),
             sortBy:(d:Mutation[])=>AlleleFreqColumnFormatter.getSortValue(d, this.props.sampleManager),
             tooltip:(<span>Variant allele frequency in the tumor sample</span>)
+        };
+
+        this._columns[MutationTableColumnType.CCF] = {
+            name: "Cancer Cell Fraction",
+            render: (d:Mutation[])=>CcfColumnFormatter.renderFunction(d, this.props.sampleManager),
+            sortBy:(d:Mutation[])=>CcfColumnFormatter.getSortValue(d, this.props.sampleManager),
+            tooltip:(<span>Cancer cell fraction in the tumor sample</span>)
         };
 
         this._columns[MutationTableColumnType.TUMORS] = {
@@ -130,6 +141,9 @@ export default class PatientViewMutationTable extends MutationTable<IPatientView
         this._columns[MutationTableColumnType.COHORT].order = 183;
         this._columns[MutationTableColumnType.COSMIC].order = 184;
         this._columns[MutationTableColumnType.MUTATION_ASSESSOR].order = 190;
+        this._columns[MutationTableColumnType.CLONAL_STATUS].order = 200;
+        this._columns[MutationTableColumnType.CCF].order = 210;
+        //this._columns[MutationTableColumnType.CCF_CLUSTER].order = 210;
 
         // exclusions
         this._columns[MutationTableColumnType.MRNA_EXPR].shouldExclude = ()=>{

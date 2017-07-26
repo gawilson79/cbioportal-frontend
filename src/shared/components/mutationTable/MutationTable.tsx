@@ -7,6 +7,7 @@ import {Mutation} from "shared/api/generated/CBioPortalAPI";
 import SampleColumnFormatter from "./column/SampleColumnFormatter";
 import TumorAlleleFreqColumnFormatter from "./column/TumorAlleleFreqColumnFormatter";
 import NormalAlleleFreqColumnFormatter from "./column/NormalAlleleFreqColumnFormatter";
+import CcfColumnFormatter from "./column/CcfColumnFormatter";
 import MrnaExprColumnFormatter from "./column/MrnaExprColumnFormatter";
 import CohortColumnFormatter from "./column/CohortColumnFormatter";
 import DiscreteCNAColumnFormatter from "./column/DiscreteCNAColumnFormatter";
@@ -15,6 +16,7 @@ import GeneColumnFormatter from "./column/GeneColumnFormatter";
 import ChromosomeColumnFormatter from "./column/ChromosomeColumnFormatter";
 import ProteinChangeColumnFormatter from "./column/ProteinChangeColumnFormatter";
 import MutationTypeColumnFormatter from "./column/MutationTypeColumnFormatter";
+import MutationClonalColumnFormatter from "./column/MutationClonalColumnFormatter";
 import MutationAssessorColumnFormatter from "./column/MutationAssessorColumnFormatter";
 import CosmicColumnFormatter from "./column/CosmicColumnFormatter";
 import {ICosmicData} from "shared/model/Cosmic";
@@ -34,6 +36,7 @@ import MutationCountCache from "../../cache/MutationCountCache";
 import MutationCountColumnFormatter from "./column/MutationCountColumnFormatter";
 import CancerTypeColumnFormatter from "./column/CancerTypeColumnFormatter";
 import {IMobXApplicationDataStore} from "../../lib/IMobXApplicationDataStore";
+
 
 export interface IMutationTableProps {
     studyId?:string;
@@ -81,9 +84,11 @@ export enum MutationTableColumnType {
     MUTATION_STATUS,
     VALIDATION_STATUS,
     MUTATION_TYPE,
+    CLONAL_STATUS,
     CENTER,
     TUMOR_ALLELE_FREQ,
     NORMAL_ALLELE_FREQ,
+    CCF,
     MUTATION_ASSESSOR,
     ANNOTATION,
     COSMIC,
@@ -178,6 +183,14 @@ export default class MutationTable<P extends IMutationTableProps> extends React.
             sortBy: NormalAlleleFreqColumnFormatter.getSortValue,
             tooltip:(<span>Variant allele frequency in the normal sample</span>),
             visible: false
+        };
+
+        this._columns[MutationTableColumnType.CCF] = {
+            name: "Cancer cell fraction",
+            render: CcfColumnFormatter.renderFunction,
+            sortBy: CcfColumnFormatter.getSortValue,
+            tooltip:(<span>Cancer cell fraction in the tumor sample</span>),
+            visible: true
         };
 
         this._columns[MutationTableColumnType.MRNA_EXPR] = {
@@ -356,6 +369,25 @@ export default class MutationTable<P extends IMutationTableProps> extends React.
             filter:(d:Mutation[], filterString:string, filterStringUpper:string) =>
                 MutationTypeColumnFormatter.getDisplayValue(d).toUpperCase().indexOf(filterStringUpper) > -1
         };
+
+        this._columns[MutationTableColumnType.CLONAL_STATUS] = {
+            name: "Clonal Status",
+            render:MutationClonalColumnFormatter.renderFunction,
+            download:MutationClonalColumnFormatter.getTextValue,
+            sortBy:(d:Mutation[])=>MutationClonalColumnFormatter.getDisplayValue(d),
+            filter:(d:Mutation[], filterString:string, filterStringUpper:string) =>
+                MutationClonalColumnFormatter.getDisplayValue(d).toUpperCase().indexOf(filterStringUpper) > -1
+        };
+
+        //this._columns[MutationTableColumnType.CLONAL_STATUS] = {
+        //     name: "Clonal Status",
+        //     render: (d:Mutation[])=>getSpanForDataField(d, "clonalStatus"),
+        //     download: (d:Mutation[])=>getTextForDataField(d, "clonalStatus"),
+        //     sortBy:(d:Mutation[])=>d.map(m=>m.clonalStatus),
+        //     filter: (d:Mutation[], filterString:string, filterStringUpper:string) =>
+        //         defaultFilter(d, "clonalStatus", filterStringUpper),
+        //     visible: false
+        // };
 
         this._columns[MutationTableColumnType.MUTATION_ASSESSOR] = {
             name: "Mutation Assessor",
